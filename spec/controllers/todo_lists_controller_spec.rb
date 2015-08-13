@@ -103,7 +103,7 @@ RSpec.describe TodoListsController, type: :controller do
   describe "PUT #update" do
     context "with valid params" do
       let(:new_attributes) {
-        {"title" => "MyString", "description" => "My Description"}
+        {"title" => "MyOtherString", "description" => "My Other Description"}
       }
 
       it "updates the requested todo_list" do
