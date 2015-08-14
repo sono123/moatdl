@@ -33,6 +33,38 @@ div.flash.notice {
 	color: blue;
 }
 
+.clear {
+	clear: both;
+}
+
+div.nav {
+	border-bottom: 1px solid #aaa;
+	margin-bottom: 20px;
+	padding: 10px 0 0 5px;
+}
+
+div.nav h1 {
+	float: left;
+	margin: 0 1em 0 0;
+}
+
+div.nav a {
+	text-decoration: none !important;
+}
+
+div.nav ul {
+	float: left;
+	list-style: none;
+	clear: right;
+	margin: 0 0 0 1em;
+	padding: 0;
+}
+
+
+
+
+
+
 
 
 
