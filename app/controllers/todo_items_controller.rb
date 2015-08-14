@@ -1,17 +1,16 @@
 class TodoItemsController < ApplicationController
+	before_action :find_todo_list
+
   def index
-  	@todo_list = TodoList.find(params[:todo_list_id])
   end
 
 
   def new
-  	@todo_list = TodoList.find(params[:todo_list_id])
   	@todo_item = @todo_list.todo_items.new
   end
 
 
   def create
-  	@todo_list = TodoList.find(params[:todo_list_id])
   	@todo_item = @todo_list.todo_items.new(todo_item_params)
   	if @todo_item.save
   		flash[:success] = "Added todo list item."
@@ -24,13 +23,11 @@ class TodoItemsController < ApplicationController
 
 
   def edit
-    @todo_list = TodoList.find(params[:todo_list_id])
   	@todo_item = @todo_list.todo_items.find(params[:id])
   end
 
 
   def update
-  	@todo_list = TodoList.find(params[:todo_list_id])
   	@todo_item = @todo_list.todo_items.find(params[:id])
   	if @todo_item.update_attributes(todo_item_params)
   		flash[:success] = "Saved todo list item."
@@ -48,6 +45,10 @@ class TodoItemsController < ApplicationController
 
 
   private
+
+  def find_todo_list
+  	@todo_list = TodoList.find(params[:todo_list_id])
+  end
 
 
   def todo_item_params
