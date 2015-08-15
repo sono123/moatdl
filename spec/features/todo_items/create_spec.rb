@@ -11,9 +11,7 @@ describe "Viewing todo lists" do
 		fill_in "Content", with: "Milk"
 		click_button "Save"
 		expect(page).to have_content("Added todo list item.")
-		within "ul.todo_items" do
-			expect(page).to have_content("Milk")
-		end
+		expect(page).to have_content("Milk")
 	end
 
 
