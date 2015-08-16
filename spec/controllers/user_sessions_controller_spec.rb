@@ -34,6 +34,52 @@ RSpec.describe UserSessionsController, type: :controller do
         expect(user).to receive(:authenticate)
         post :create, email: "steve@gmail.com", password: "abcd"
       end
+
+      it "sets the user_id in the session" do
+        post :create, email: "steve@gmail.com", password: "abcd"
+        expect(session[:user_id]).to eq(user.id)
+      end
+
+      it "sets the flash success message" do
+        post :create, email: "steve@gmail.com", password: "abcd"
+        expect(flash[:success]).to eq("Thanks for logging in!")
+      end
+
+    end
+
+
+    shared_examples_for "denied login" do
+      it "renders the new template" do
+        post :create, email: email, password: password
+        expect(response).to render_template('new')
+      end
+
+      it "sets the flash error message" do
+        post :create
+        expect(flash[:error]).to eq("There was a problem logging in. Please check your credentials.")
+      end
+    end
+
+
+    context "with blank credentials" do
+      let(:email) { "" }
+      let(:password) { "" }
+      it_behaves_like "denied login"
+    end
+
+
+    context "with an incorrect password" do
+      let!(:user) { User.create(first_name: "Steve", last_name: "Ono", email: "steve@gmail.com", password: "abcd", password_confirmation: "abcd") }
+      let(:email) { user.email }
+      let(:password) { "incorrect" }
+      it_behaves_like "denied login"
+    end
+
+
+    context "with no email in existence" do
+      let(:email) { "wrong@email.com" }
+      let(:password) { "incorrect" }
+      it_behaves_like "denied login"      
     end
   end
 
