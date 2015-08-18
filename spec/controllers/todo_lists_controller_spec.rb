@@ -47,7 +47,7 @@ RSpec.describe TodoListsController, type: :controller do
 
     context "logged in" do
       before do
-        controller.stub(:require_user).and_return(true)
+        controller.stub(:require_user).and_return(build_stubbed(:user))
       end
 
       it "assigns all todo_lists as @todo_lists" do
