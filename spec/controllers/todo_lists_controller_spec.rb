@@ -36,20 +36,12 @@ RSpec.describe TodoListsController, type: :controller do
   # TodoListsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  before do
+    sign_in(build_stubbed(:user))
+  end
+
   describe "GET #index" do
-    context "logged out" do
-      it "requires login" do
-        get :index, {}, valid_session
-        expect(response).to be_redirect
-        expect(page).to redirect_to(new_user_session_path)
-      end
-    end
-
     context "logged in" do
-      before do
-        controller.stub(:require_user).and_return(build_stubbed(:user))
-      end
-
       it "assigns all todo_lists as @todo_lists" do
         todo_list = TodoList.create! valid_attributes
         get :index, {}, valid_session
@@ -59,130 +51,57 @@ RSpec.describe TodoListsController, type: :controller do
   end
 
   describe "GET #show" do
-    context "logged out" do
-      it "requires login" do
-        todo_list = TodoList.create! valid_attributes
-        get :show, {:id => todo_list.to_param}, valid_session
-        expect(response).to be_redirect
-        expect(page).to redirect_to(new_user_session_path)
-      end
+    it "assigns the requested todo_list as @todo_list" do
+      todo_list = TodoList.create! valid_attributes
+      get :show, {:id => todo_list.to_param}, valid_session
+      expect(assigns(:todo_list)).to eq(todo_list)
     end
-
-    context "logged in" do
-      before do
-        controller.stub(:require_user).and_return(true)
-      end
-
-      it "assigns the requested todo_list as @todo_list" do
-        todo_list = TodoList.create! valid_attributes
-        get :show, {:id => todo_list.to_param}, valid_session
-        expect(assigns(:todo_list)).to eq(todo_list)
-      end
-    end
-
   end
 
   describe "GET #new" do
-    context "logged out" do
-      it "requires login" do
-        get :new, {}, valid_session
-        expect(response).to be_redirect
-        expect(page).to redirect_to(new_user_session_path)
-      end
-    end
-
-    context "logged in" do
-      before do
-        controller.stub(:require_user).and_return(true)
-      end
-
-      it "assigns a new todo_list as @todo_list" do
-        get :new, {}, valid_session
-        expect(assigns(:todo_list)).to be_a_new(TodoList)
-      end
+    it "assigns a new todo_list as @todo_list" do
+      get :new, {}, valid_session
+      expect(assigns(:todo_list)).to be_a_new(TodoList)
     end
   end
 
   describe "GET #edit" do
-    context "logged out" do
-      it "requires login" do
-        todo_list = TodoList.create! valid_attributes
-        get :edit, {:id => todo_list.to_param}, valid_session
-        expect(response).to be_redirect
-        expect(page).to redirect_to(new_user_session_path)
-      end
-    end
-
-    context "logged in" do
-      before do
-        controller.stub(:require_user).and_return(true)
-      end
-
-      it "assigns the requested todo_list as @todo_list" do
-        todo_list = TodoList.create! valid_attributes
-        get :edit, {:id => todo_list.to_param}, valid_session
-        expect(assigns(:todo_list)).to eq(todo_list)
-      end
+    it "assigns the requested todo_list as @todo_list" do
+      todo_list = TodoList.create! valid_attributes
+      get :edit, {:id => todo_list.to_param}, valid_session
+      expect(assigns(:todo_list)).to eq(todo_list)
     end
   end
 
   describe "POST #create" do
     context "with valid params" do
-      context "logged out" do
-        it "requires login" do
+      it "creates a new TodoList" do
+        expect {
           post :create, {:todo_list => valid_attributes}, valid_session
-          expect(response).to be_redirect
-          expect(page).to redirect_to(new_user_session_path)
-        end
+        }.to change(TodoList, :count).by(1)
       end
 
-      context "logged in" do
-        before do
-          controller.stub(:require_user).and_return(true)
-        end
+      it "assigns a newly created todo_list as @todo_list" do
+        post :create, {:todo_list => valid_attributes}, valid_session
+        expect(assigns(:todo_list)).to be_a(TodoList)
+        expect(assigns(:todo_list)).to be_persisted
+      end
 
-        it "creates a new TodoList" do
-          expect {
-            post :create, {:todo_list => valid_attributes}, valid_session
-          }.to change(TodoList, :count).by(1)
-        end
-
-        it "assigns a newly created todo_list as @todo_list" do
-          post :create, {:todo_list => valid_attributes}, valid_session
-          expect(assigns(:todo_list)).to be_a(TodoList)
-          expect(assigns(:todo_list)).to be_persisted
-        end
-
-        it "redirects to the created todo_list" do
-          post :create, {:todo_list => valid_attributes}, valid_session
-          expect(response).to redirect_to(TodoList.last)
-        end
+      it "redirects to the created todo_list" do
+        post :create, {:todo_list => valid_attributes}, valid_session
+        expect(response).to redirect_to(TodoList.last)
       end
     end
 
     context "with invalid params" do
-      context "logged out" do
-        it "requires login" do
-          post :create, {:todo_list => invalid_attributes}, valid_session
-          expect(response).to be_redirect
-          expect(page).to redirect_to(new_user_session_path)
-        end
+      it "assigns a newly created but unsaved todo_list as @todo_list" do
+        post :create, {:todo_list => invalid_attributes}, valid_session
+        expect(assigns(:todo_list)).to be_a_new(TodoList)
       end
 
-      context "logged in" do
-        before do
-          controller.stub(:require_user).and_return(true)
-        end
-
-        it "assigns a newly created but unsaved todo_list as @todo_list" do
-          post :create, {:todo_list => invalid_attributes}, valid_session
-          expect(assigns(:todo_list)).to be_a_new(TodoList)
-        end
-
-        it "re-renders the 'new' template" do
-          post :create, {:todo_list => invalid_attributes}, valid_session
-          expect(response).to render_template("new")
-        end
+      it "re-renders the 'new' template" do
+        post :create, {:todo_list => invalid_attributes}, valid_session
+        expect(response).to render_template("new")
       end
     end
   end
@@ -193,97 +112,53 @@ RSpec.describe TodoListsController, type: :controller do
         {"title" => "MyOtherString", "description" => "My Other Description"}
       }
 
-      context "logged out" do
-        it "requires login" do
-          post :create, {:todo_list => valid_attributes}, valid_session
-          expect(response).to be_redirect
-          expect(page).to redirect_to(new_user_session_path)
-        end
+      it "updates the requested todo_list" do
+        todo_list = TodoList.create! valid_attributes
+        put :update, {:id => todo_list.to_param, :todo_list => new_attributes}, valid_session
+        todo_list.reload
+        skip("Add assertions for updated state")
       end
 
-      context "logged in" do
-        before do
-          controller.stub(:require_user).and_return(true)
-        end
+      it "assigns the requested todo_list as @todo_list" do
+        todo_list = TodoList.create! valid_attributes
+        put :update, {:id => todo_list.to_param, :todo_list => valid_attributes}, valid_session
+        expect(assigns(:todo_list)).to eq(todo_list)
+      end
 
-        it "updates the requested todo_list" do
-          todo_list = TodoList.create! valid_attributes
-          put :update, {:id => todo_list.to_param, :todo_list => new_attributes}, valid_session
-          todo_list.reload
-          skip("Add assertions for updated state")
-        end
-
-        it "assigns the requested todo_list as @todo_list" do
-          todo_list = TodoList.create! valid_attributes
-          put :update, {:id => todo_list.to_param, :todo_list => valid_attributes}, valid_session
-          expect(assigns(:todo_list)).to eq(todo_list)
-        end
-
-        it "redirects to the todo_list" do
-          todo_list = TodoList.create! valid_attributes
-          put :update, {:id => todo_list.to_param, :todo_list => valid_attributes}, valid_session
-          expect(response).to redirect_to(todo_list)
-        end
+      it "redirects to the todo_list" do
+        todo_list = TodoList.create! valid_attributes
+        put :update, {:id => todo_list.to_param, :todo_list => valid_attributes}, valid_session
+        expect(response).to redirect_to(todo_list)
       end
     end
 
     context "with invalid params" do
-      context "logged out" do
-        it "requires login" do
-          todo_list = TodoList.create! valid_attributes
-          put :update, {:id => todo_list.to_param, :todo_list => invalid_attributes}, valid_session
-          expect(response).to be_redirect
-          expect(page).to redirect_to(new_user_session_path)
-        end
+      it "assigns the todo_list as @todo_list" do
+        todo_list = TodoList.create! valid_attributes
+        put :update, {:id => todo_list.to_param, :todo_list => invalid_attributes}, valid_session
+        expect(assigns(:todo_list)).to eq(todo_list)
       end
 
-      context "logged in" do
-        before do
-          controller.stub(:require_user).and_return(true)
-        end
-
-        it "assigns the todo_list as @todo_list" do
-          todo_list = TodoList.create! valid_attributes
-          put :update, {:id => todo_list.to_param, :todo_list => invalid_attributes}, valid_session
-          expect(assigns(:todo_list)).to eq(todo_list)
-        end
-
-        it "re-renders the 'edit' template" do
-          todo_list = TodoList.create! valid_attributes
-          put :update, {:id => todo_list.to_param, :todo_list => invalid_attributes}, valid_session
-          expect(response).to render_template("edit")
-        end
+      it "re-renders the 'edit' template" do
+        todo_list = TodoList.create! valid_attributes
+        put :update, {:id => todo_list.to_param, :todo_list => invalid_attributes}, valid_session
+        expect(response).to render_template("edit")
       end
     end
   end
 
   describe "DELETE #destroy" do
-    context "logged out" do
-        it "requires login" do
-          todo_list = TodoList.create! valid_attributes
-          delete :destroy, {:id => todo_list.to_param}, valid_session
-          expect(response).to be_redirect
-          expect(page).to redirect_to(new_user_session_path)
-        end
-      end
-
-    context "logged in" do
-      before do
-        controller.stub(:require_user).and_return(true)
-      end
-      
-      it "destroys the requested todo_list" do
-        todo_list = TodoList.create! valid_attributes
-        expect {
-          delete :destroy, {:id => todo_list.to_param}, valid_session
-        }.to change(TodoList, :count).by(-1)
-      end
-
-      it "redirects to the todo_lists list" do
-        todo_list = TodoList.create! valid_attributes
+    it "destroys the requested todo_list" do
+      todo_list = TodoList.create! valid_attributes
+      expect {
         delete :destroy, {:id => todo_list.to_param}, valid_session
-        expect(response).to redirect_to(todo_lists_url)
-      end
+      }.to change(TodoList, :count).by(-1)
+    end
+
+    it "redirects to the todo_lists list" do
+      todo_list = TodoList.create! valid_attributes
+      delete :destroy, {:id => todo_list.to_param}, valid_session
+      expect(response).to redirect_to(todo_lists_url)
     end
   end
 
