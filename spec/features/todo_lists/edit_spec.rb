@@ -2,7 +2,12 @@ require 'spec_helper'
 require 'rails_helper'
 
 describe "Editing todo lists" do
+	let(:user) { create(:user) }
 	let!(:todo_list) { TodoList.create(title: "Groceries", description: "Grocery list.") }
+
+	before do
+		sign_in(user, password: "abcd")
+	end
 
 	def update_todo_list(options={})
 		options[:title] ||= "My todo list"

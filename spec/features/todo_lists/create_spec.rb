@@ -2,7 +2,11 @@ require 'spec_helper'
 require 'rails_helper'
 
 describe "Creating todo lists" do
+	let(:user) { create(:user) }
 
+	before do
+		sign_in(user, password: "abcd")
+	end
 
 	def create_todo_lists(options={})
 		options[:title] ||= "My todo list"
