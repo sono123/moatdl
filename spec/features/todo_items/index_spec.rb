@@ -2,8 +2,8 @@ require 'spec_helper'
 require 'rails_helper'
 
 describe "Viewing todo lists" do
-	let(:user) { create(:user) }
-	let!(:todo_list) { TodoList.create(title: "Grocery list", description: "Groceries") }
+	let(:user) { todo_list.user }
+	let!(:todo_list) { create(:todo_list) }
 
 	before do
 		sign_in(user, password: "abcd")

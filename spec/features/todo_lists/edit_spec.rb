@@ -3,10 +3,10 @@ require 'rails_helper'
 
 describe "Editing todo lists" do
 	let(:user) { create(:user) }
-	let!(:todo_list) { TodoList.create(title: "Groceries", description: "Grocery list.") }
+	let!(:todo_list) { create(:todo_list) }
 
 	before do
-		sign_in(user, password: "abcd")
+		sign_in(todo_list.user, password: "abcd")
 	end
 
 	def update_todo_list(options={})
