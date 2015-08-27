@@ -45,6 +45,13 @@ RSpec.describe UserSessionsController, type: :controller do
         expect(flash[:success]).to eq("Thanks for logging in!")
       end
 
+      it "sets the remember_me_token cookie if chosen" do
+        expect(cookies).to_not have_key("remember_me_token")
+        post :create, email: "steve@gmail.com", password: "abcd", remember_me: "1"
+        expect(cookies).to have_key("remember_me_token")
+        expect(cookies["remember_me_token"]).to_not be_nil
+      end
+
     end
 
 
@@ -80,6 +87,21 @@ RSpec.describe UserSessionsController, type: :controller do
       let(:email) { "wrong@email.com" }
       let(:password) { "incorrect" }
       it_behaves_like "denied login"      
+    end
+  end
+
+  describe "DELETE destroy" do
+    context "logged in" do
+      before do
+        sign_in( create(:user) )
+      end
+
+      it "removes the remember_me_token" do
+        cookies["remember_me_token"] = "remembered"
+        delete :destroy
+        expect(cookies).to_not have_key("remember_me_token")
+        expect(cookies["remember_me_token"]).to be_nil
+      end
     end
   end
 
